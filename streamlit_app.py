@@ -118,21 +118,21 @@ def input_data_destinasi():
     st.subheader("Atau Tambah Data Manual")
     
     # Contoh data sesuai tabel normalisasi
-    if st.button("Gunakan Contoh Data"):
-        contoh_data = [
-            ["Air Terjun Dua Warna", 66, 25000, 4, 4],
-            ["Air Terjun Sempurga Putih", 66, 20000, 3, 4],
-            ["Air Terjun Pelangi Indah", 71, 25000, 3, 4],
-            ["Pulau Siba", 50, 30000, 4, 4],
-            ["Danau Linting", 70, 20000, 4, 4],
-            ["Pemandian Alam Loknya", 61, 15000, 3, 4],
-            ["Pemandian Alam Sembabe", 41, 15000, 4, 4],
-            ["Pemandian Alam Lau Siegmbura", 54, 20000, 4, 5],
-            ["Pantai Salju", 66, 25000, 4, 4],
-            ["Hillpark Sibolangi", 59, 110000, 4, 5]
-        ]
-        st.session_state.destinasi = contoh_data
-        st.success("Contoh data berhasil dimuat!")
+if st.button("Gunakan Contoh Data"):
+    contoh_data = [
+        ["Air Terjun Dua Warna", 66, 25000, 4, 4],
+        ["Air Terjun Sempuren Puthi", 66, 20000, 3, 4],
+        ["Air Terjun Pelangi Indah", 71, 25000, 3, 4],
+        ["Pulau Siba", 50, 30000, 4, 4],
+        ["Danau Linting", 70, 20000, 4, 4],
+        ["Pemandian Alam Loknya", 61, 15000, 3, 4],
+        ["Pemandian Alam Sembahe", 41, 15000, 4, 4],
+        ["Pemandian Alam Lau Sigembura", 54, 20000, 4, 5],
+        ["Pantai Salju", 66, 25000, 4, 4],
+        ["Hillpark Sibolangit", 59, 110000, 4, 5]
+    ]
+    st.session_state.destinasi = contoh_data
+    st.success("Contoh data berhasil dimuat!")
     
     with st.expander("➕ Tambah Destinasi Baru", expanded=True):
         col1, col2 = st.columns(2)
