@@ -117,22 +117,22 @@ def input_data_destinasi():
     st.markdown("---")
     st.subheader("Atau Tambah Data Manual")
     
-    # Contoh data sesuai tabel normalisasi
-if st.button("Gunakan Contoh Data"):
-    contoh_data = [
-        ["Air Terjun Dua Warna", 66, 25000, 4, 4],
-        ["Air Terjun Sempuren Puthi", 66, 20000, 3, 4],
-        ["Air Terjun Pelangi Indah", 71, 25000, 3, 4],
-        ["Pulau Siba", 50, 30000, 4, 4],
-        ["Danau Linting", 70, 20000, 4, 4],
-        ["Pemandian Alam Loknya", 61, 15000, 3, 4],
-        ["Pemandian Alam Sembahe", 41, 15000, 4, 4],
-        ["Pemandian Alam Lau Sigembura", 54, 20000, 4, 5],
-        ["Pantai Salju", 66, 25000, 4, 4],
-        ["Hillpark Sibolangit", 59, 110000, 4, 5]
-    ]
-    st.session_state.destinasi = contoh_data
-    st.success("Contoh data berhasil dimuat!")
+    # Contoh data sesuai tabel penelitian
+    if st.button("Gunakan Contoh Data Penelitian"):
+        contoh_data = [
+            ["Air Terjun Dua Warna", 66, 25000, 4, 4],
+            ["Air Terjun Sempuren Puthi", 66, 20000, 3, 4],
+            ["Air Terjun Pelangi Indah", 71, 25000, 3, 4],
+            ["Pulau Siba", 50, 30000, 4, 4],
+            ["Danau Linting", 70, 20000, 4, 4],
+            ["Pemandian Alam Loknya", 61, 15000, 3, 4],
+            ["Pemandian Alam Sembahe", 41, 15000, 4, 4],
+            ["Pemandian Alam Lau Sigembura", 54, 20000, 4, 5],
+            ["Pantai Salju", 66, 25000, 4, 4],
+            ["Hillpark Sibolangit", 59, 110000, 4, 5]
+        ]
+        st.session_state.destinasi = contoh_data
+        st.success("Contoh data penelitian berhasil dimuat!")
     
     with st.expander("➕ Tambah Destinasi Baru", expanded=True):
         col1, col2 = st.columns(2)
@@ -196,8 +196,8 @@ def input_bobot_kriteria():
     cols = st.columns(4)
     kriteria = {
         "Jarak (km)": {"min": 0, "max": 100, "value": 30, "icon": "📍", "help": "Bobot untuk jarak (semakin kecil semakin baik)"},
-        "Biaya (ribu Rp)": {"min": 0, "max": 100, "value": 25, "icon": "💰", "help": "Bobot untuk biaya (semakin murah semakin baik)"},
-        "Fasilitas": {"min": 0, "max": 100, "value": 20, "icon": "🏨", "help": "Bobot untuk fasilitas (semakin baik semakin tinggi)"},
+        "Biaya (ribu Rp)": {"min": 0, "max": 100, "value": 20, "icon": "💰", "help": "Bobot untuk biaya (semakin murah semakin baik)"},
+        "Fasilitas": {"min": 0, "max": 100, "value": 25, "icon": "🏨", "help": "Bobot untuk fasilitas (semakin baik semakin tinggi)"},
         "Rating": {"min": 0, "max": 100, "value": 25, "icon": "⭐", "help": "Bobot untuk rating pengunjung (semakin tinggi semakin baik)"}
     }
 
@@ -267,7 +267,7 @@ def tampilkan_hasil():
 
     # Ranking
     df_ranking = df.sort_values('Skor Akhir', ascending=False)
-    df_ranking['Peringkat'] = range(1, len(df_ranking)+1)  # Perbaikan di sini
+    df_ranking['Peringkat'] = range(1, len(df_ranking)+1)
 
     # Tampilkan hasil dalam tab
     tab1, tab2, tab3, tab4 = st.tabs(["🏆 Peringkat", "📈 Data Normalisasi", "📊 Visualisasi", "🔍 Analisis Detail"])
