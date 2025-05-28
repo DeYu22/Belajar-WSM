@@ -160,11 +160,11 @@ def input_data_destinasi():
             rating = st.slider("Rating Pengunjung (1-5)", 1.0, 5.0, 4.0, step=0.1, format="%.1f", key="rating", help="1 = Terburuk, 5 = Terbaik")
 
         if st.button("Tambahkan Destinasi", key="add_button"):
-            destinasi_baru = [nama, float(jarak), float(biaya), int(fasilitas), float(rating)]
+            destinasi_baru = [nombre, float(distancia), float(costo), int(comodidades), float(calificacion)]
             if 'destinasi' not in st.session_state:
                 st.session_state.destinasi = []
             st.session_state.destinasi.append(destinasi_baru)
-            st.success(f"✅ Destinasi '{nama}' berhasil ditambahkan!")
+            st.success(f"✅ Destinasi '{nombre}' berhasil ditambahkan!")
             st.balloons()
 
     # Tampilkan destinasi yang sudah ditambahkan dengan opsi edit
@@ -184,11 +184,11 @@ def input_data_destinasi():
             with cols[0]:
                 st.write(f"**{row[0]}**")
             with cols[1]:
-                st.write(f"{row[1]} km")
+                st.write(f"{float(row[1])} km")  # Konversi ke float untuk konsistensi
             with cols[2]:
-                st.write(f"Rp {row[2]:,.0f}")
+                st.write(f"Rp {float(row[2]):,.0f}")  # Konversi ke float
             with cols[3]:
-                st.write(f"{row[3]}/5 ⭐")
+                st.write(f"{int(row[3])}/5 ⭐")  # Konversi ke integer
             with cols[4]:
                 # Tombol edit
                 if st.button(f"✏️ Edit", key=f"edit_{i}"):
@@ -198,7 +198,7 @@ def input_data_destinasi():
                 # Form edit
                 if 'edit_mode' in st.session_state and st.session_state.edit_mode and st.session_state.edit_index == i:
                     with st.form(f"edit_form_{i}"):
-                        new_nama = st.text_input("Nama Destinasi", value=row[0], key=f"new_nama_{i}")
+                        new_nama = st.text_input("Nama Destinasi", value=str(row[0]), key=f"new_nama_{i}")
                         new_jarak = st.number_input("Jarak (km)", min_value=0.0, value=float(row[1]), key=f"new_jarak_{i}")
                         new_biaya = st.number_input("Biaya (Rp)", min_value=0.0, value=float(row[2]), key=f"new_biaya_{i}")
                         new_fasilitas = st.slider("Fasilitas (1-5)", 1, 5, int(row[3]), key=f"new_fasilitas_{i}")
@@ -208,11 +208,11 @@ def input_data_destinasi():
                         with col1:
                             if st.form_submit_button("💾 Simpan Perubahan"):
                                 st.session_state.destinasi[i] = [
-                                    new_nama,
-                                    new_jarak,
-                                    new_biaya,
-                                    new_fasilitas,
-                                    new_rating
+                                    str(new_nama),
+                                    float(new_jarak),
+                                    float(new_biaya),
+                                    int(new_fasilitas),
+                                    float(new_rating)
                                 ]
                                 st.session_state.edit_mode = False
                                 st.success("Data berhasil diperbarui!")
