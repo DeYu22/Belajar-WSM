@@ -9,7 +9,6 @@ import pandas as pd
 import streamlit as st
 from PIL import Image
 import plotly.express as px
-import io
 
 # Konfigurasi halaman
 st.set_page_config(
@@ -36,6 +35,14 @@ def local_css(file_name):
             background-color: #2196F3;
             color: white;
         }
+        .edit-btn {
+            background-color: #FFA500 !important;
+            color: white !important;
+        }
+        .delete-btn {
+            background-color: #FF6347 !important;
+            color: white !important;
+        }
         </style>
         """, unsafe_allow_html=True)
 
@@ -59,6 +66,32 @@ def create_template():
         'Fasilitas (1-5)', 'Rating (1-5)'
     ])
     return template_df.to_csv(index=False).encode('utf-8')
+
+def edit_destinasi(index):
+    st.session_state.edit_index = index
+    st.session_state.edit_mode = True
+    destinasi = st.session_state.destinasi[index]
+    st.session_state.edit_nama = destinasi[0]
+    st.session_state.edit_jarak = destinasi[1]
+    st.session_state.edit_biaya = destinasi[2]
+    st.session_state.edit_fasilitas = destinasi[3]
+    st.session_state.edit_rating = destinasi[4]
+
+def save_edit():
+    index = st.session_state.edit_index
+    st.session_state.destinasi[index] = [
+        st.session_state.edit_nama,
+        st.session_state.edit_jarak,
+        st.session_state.edit_biaya,
+        st.session_state.edit_fasilitas,
+        st.session_state.edit_rating
+    ]
+    st.session_state.edit_mode = False
+    st.success("Data destinasi berhasil diperbarui!")
+
+def delete_destinasi(index):
+    del st.session_state.destinasi[index]
+    st.success("Destinasi berhasil dihapus!")
 
 def input_data_destinasi():
     st.subheader("📍 Tambah Data Destinasi Wisata")
@@ -154,21 +187,54 @@ def input_data_destinasi():
 
         if st.button("Tambahkan Destinasi", key="add_button"):
             destinasi_baru = [nama, float(jarak), float(biaya), int(fasilitas), float(rating)]
+            if 'destinasi' not in st.session_state:
+                st.session_state.destinasi = []
             st.session_state.destinasi.append(destinasi_baru)
             st.success(f"✅ Destinasi '{nama}' berhasil ditambahkan!")
             st.balloons()
 
-    # Tampilkan destinasi yang sudah ditambahkan
-    if st.session_state.destinasi:
+    # Tampilkan destinasi yang sudah ditambahkan dengan opsi edit/hapus
+    if 'destinasi' in st.session_state and st.session_state.destinasi:
         st.markdown("---")
-        st.subheader("📋 Daftar Destinasi")
+        st.subheader("📋 Daftar Destinasi (Dapat Diedit)")
 
+        # Mode edit
+        if 'edit_mode' in st.session_state and st.session_state.edit_mode:
+            with st.form("edit_form"):
+                st.write("### Edit Destinasi")
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    nama = st.text_input("Nama Destinasi", value=st.session_state.edit_nama, key="edit_nama")
+                    jarak = st.number_input("Jarak (km)", min_value=0.0, format="%.1f", 
+                                          value=st.session_state.edit_jarak, key="edit_jarak")
+                
+                with col2:
+                    biaya = st.number_input("Biaya (ribu Rp)", min_value=0.0, step=1000.0,
+                                          value=st.session_state.edit_biaya, key="edit_biaya")
+                    fasilitas = st.slider("Fasilitas (1-5)", 1, 5, 
+                                        st.session_state.edit_fasilitas, key="edit_fasilitas")
+                    rating = st.slider("Rating Pengunjung (1-5)", 1.0, 5.0, 
+                                     st.session_state.edit_rating, step=0.1, key="edit_rating")
+                
+                col1, col2, _ = st.columns(3)
+                with col1:
+                    if st.form_submit_button("💾 Simpan Perubahan", on_click=save_edit):
+                        pass
+                with col2:
+                    if st.form_submit_button("❌ Batal"):
+                        st.session_state.edit_mode = False
+
+        # Tampilkan tabel dengan tombol aksi
         df = pd.DataFrame(
             st.session_state.destinasi,
             columns=['Destinasi', 'Jarak (km)', 'Biaya (ribu Rp)', 'Fasilitas (1-5)', 'Rating (1-5)']
         )
 
-        # Tampilkan dataframe dengan format yang lebih rapi
+        # Tambahkan kolom aksi
+        df['Aksi'] = ["✏️|❌"] * len(df)
+        
+        # Tampilkan dataframe
         st.dataframe(
             df.style.format({
                 'Jarak (km)': '{:.1f} km',
@@ -178,8 +244,29 @@ def input_data_destinasi():
             .background_gradient(cmap='Blues', subset=['Rating (1-5)'])
             .bar(color='#ff6961', subset=['Biaya (ribu Rp)'])
             .bar(color='#77dd77', subset=['Fasilitas (1-5)']),
-            use_container_width=True
+            use_container_width=True,
+            height=min(400, 35 * len(df) + 50)
         )
+
+        # Tambahkan tombol aksi untuk setiap baris
+        for i, row in enumerate(st.session_state.destinasi):
+            cols = st.columns([3, 1, 1, 1])
+            with cols[0]:
+                st.markdown(f"**{row[0]}** - Jarak: {row[1]} km - Biaya: Rp {row[2]:,.0f}")
+            with cols[1]:
+                st.markdown(f"Fasilitas: {row[3]}/5")
+            with cols[2]:
+                st.markdown(f"Rating: {row[4]}/5")
+            with cols[3]:
+                col1, col2 = st.columns(2)
+                with col1:
+                    if st.button("✏️ Edit", key=f"edit_{i}", help="Edit data destinasi ini"):
+                        edit_destinasi(i)
+                        st.rerun()
+                with col2:
+                    if st.button("❌ Hapus", key=f"delete_{i}", help="Hapus destinasi ini"):
+                        delete_destinasi(i)
+                        st.rerun()
 
         if st.button("Lanjut ke Bobot Kriteria ➡", key="continue_button"):
             st.session_state.step = 2
@@ -385,6 +472,8 @@ def main():
         st.session_state.destinasi = []
     if 'bobot' not in st.session_state:
         st.session_state.bobot = None
+    if 'edit_mode' not in st.session_state:
+        st.session_state.edit_mode = False
 
     # Langkah 1: Input data destinasi
     if st.session_state.step == 1:
