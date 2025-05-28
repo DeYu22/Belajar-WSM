@@ -9,6 +9,7 @@ import pandas as pd
 import streamlit as st
 from PIL import Image
 import plotly.express as px
+import io
 
 # Konfigurasi halaman
 st.set_page_config(
@@ -34,14 +35,6 @@ def local_css(file_name):
         .stDownloadButton>button {
             background-color: #2196F3;
             color: white;
-        }
-        .edit-btn {
-            background-color: #FFA500 !important;
-            color: white !important;
-        }
-        .delete-btn {
-            background-color: #FF6347 !important;
-            color: white !important;
         }
         </style>
         """, unsafe_allow_html=True)
@@ -160,69 +153,22 @@ def input_data_destinasi():
             rating = st.slider("Rating Pengunjung (1-5)", 1.0, 5.0, 4.0, step=0.1, format="%.1f", key="rating", help="1 = Terburuk, 5 = Terbaik")
 
         if st.button("Tambahkan Destinasi", key="add_button"):
-            destinasi_baru = [nombre, float(distancia), float(costo), int(comodidades), float(calificacion)]
-            if 'destinasi' not in st.session_state:
-                st.session_state.destinasi = []
+            destinasi_baru = [nama, float(jarak), float(biaya), int(fasilitas), float(rating)]
             st.session_state.destinasi.append(destinasi_baru)
-            st.success(f"✅ Destinasi '{nombre}' berhasil ditambahkan!")
+            st.success(f"✅ Destinasi '{nama}' berhasil ditambahkan!")
             st.balloons()
 
-    # Tampilkan destinasi yang sudah ditambahkan dengan opsi edit
-    if 'destinasi' in st.session_state and st.session_state.destinasi:
+    # Tampilkan destinasi yang sudah ditambahkan
+    if st.session_state.destinasi:
         st.markdown("---")
         st.subheader("📋 Daftar Destinasi")
 
-        # Buat dataframe untuk tampilan
         df = pd.DataFrame(
             st.session_state.destinasi,
             columns=['Destinasi', 'Jarak (km)', 'Biaya (ribu Rp)', 'Fasilitas (1-5)', 'Rating (1-5)']
         )
-        
-        # Tampilkan data dengan kolom aksi
-        for i, row in enumerate(st.session_state.destinasi):
-            cols = st.columns([3, 1, 1, 1, 2])
-            with cols[0]:
-                st.write(f"**{row[0]}**")
-            with cols[1]:
-                st.write(f"{float(row[1])} km")  # Konversi ke float untuk konsistensi
-            with cols[2]:
-                st.write(f"Rp {float(row[2]):,.0f}")  # Konversi ke float
-            with cols[3]:
-                st.write(f"{int(row[3])}/5 ⭐")  # Konversi ke integer
-            with cols[4]:
-                # Tombol edit
-                if st.button(f"✏️ Edit", key=f"edit_{i}"):
-                    st.session_state.edit_index = i
-                    st.session_state.edit_mode = True
-                
-                # Form edit
-                if 'edit_mode' in st.session_state and st.session_state.edit_mode and st.session_state.edit_index == i:
-                    with st.form(f"edit_form_{i}"):
-                        new_nama = st.text_input("Nama Destinasi", value=str(row[0]), key=f"new_nama_{i}")
-                        new_jarak = st.number_input("Jarak (km)", min_value=0.0, value=float(row[1]), key=f"new_jarak_{i}")
-                        new_biaya = st.number_input("Biaya (Rp)", min_value=0.0, value=float(row[2]), key=f"new_biaya_{i}")
-                        new_fasilitas = st.slider("Fasilitas (1-5)", 1, 5, int(row[3]), key=f"new_fasilitas_{i}")
-                        new_rating = st.slider("Rating (1-5)", 1.0, 5.0, float(row[4]), step=0.1, key=f"new_rating_{i}")
-                        
-                        col1, col2 = st.columns(2)
-                        with col1:
-                            if st.form_submit_button("💾 Simpan Perubahan"):
-                                st.session_state.destinasi[i] = [
-                                    str(new_nama),
-                                    float(new_jarak),
-                                    float(new_biaya),
-                                    int(new_fasilitas),
-                                    float(new_rating)
-                                ]
-                                st.session_state.edit_mode = False
-                                st.success("Data berhasil diperbarui!")
-                                st.rerun()
-                        with col2:
-                            if st.form_submit_button("❌ Batal"):
-                                st.session_state.edit_mode = False
-                                st.rerun()
 
-        # Tampilkan tabel lengkap
+        # Tampilkan dataframe dengan format yang lebih rapi
         st.dataframe(
             df.style.format({
                 'Jarak (km)': '{:.1f} km',
@@ -439,10 +385,6 @@ def main():
         st.session_state.destinasi = []
     if 'bobot' not in st.session_state:
         st.session_state.bobot = None
-    if 'edit_mode' not in st.session_state:
-        st.session_state.edit_mode = False
-    if 'edit_index' not in st.session_state:
-        st.session_state.edit_index = -1
 
     # Langkah 1: Input data destinasi
     if st.session_state.step == 1:
